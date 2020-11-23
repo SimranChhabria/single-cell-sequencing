@@ -5,14 +5,14 @@
 This repository consists of a R script for single-cell analysis using Seurat and annotation based on scCATCH.<br/>
 It is divided into 3 parts:
 
-### Part 1: Creation of Seurat Objects, Finding anchors and Integrating the data using Seurat*
+### Part 1: Creation of Seurat Objects, Finding anchors and Integrating the data using Seurat
 This block of commands performs the typical Seurat single cell functions by creating the Seurat object, filtering the data, finding the clusters and creating plots like UMAP for visualization.Then, it finds anchors and integrates the entire dataset for further analysis. <br/>
 
-### Part 2: Annotation with scCATCH*
+### Part 2: Annotation with scCATCH
 scCATCH is used to realize the automatic annotation for each identified cluster. For this, please define the species, cancer type and tissue type accordingly.<br/>
 https://github.com/ZJUFanLab/scCATCH <br/>
 
-### Part 3: Finding gene markers in the clusters*
+### Part 3: Finding gene markers in the clusters
 This section of the code helps to display all the markers associated in each cluster and plotting them for noting the differential gene expression.<br/>
 
 
@@ -35,14 +35,7 @@ This section of the code helps to display all the markers associated in each clu
   -patchwork <br/>
   -metap <br/>
  
- Please install the packages in this way.<br/>
  
- ```
- install.package("devtools")
- install.packages("Seurat")
- and so on 
- ```
-  
 2. Install the scCATCH package from Bioconductor using the the BiocManager::install() function.
 
    ```
