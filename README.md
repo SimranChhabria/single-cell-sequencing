@@ -1,4 +1,4 @@
-# single-cell-sequencing and annotation using scCATCH
+# single-cell sequencing and annotation using scCATCH
 
 ## Description:
 
@@ -20,11 +20,11 @@ This section of the code helps to display all the markers associated in each clu
 
 ### Packages for R:
 
-     **Note 1:  Install the packages in the order listed below.** <br/>
+   *Note 1:  Install the packages in the order listed below.* <br/>
 
-     **Note 2:  When installing the following packages, if you are asked to select (a/s/n) or (y/n), please select “a” or "y" as applicable.** <br/>
+   *Note 2:  When installing the following packages, if you are asked to select (a/s/n) or (y/n), please select “a” or "y" as applicable.* <br/>
 
-     **Note 3: All the package names listed below are case sensitive!** <br/>
+   *Note 3: All the package names listed below are case sensitive!* <br/>
 
 1. Install all the packages listed below from CRAN using **install.packages()** function. <br/>
   
@@ -35,7 +35,7 @@ This section of the code helps to display all the markers associated in each clu
   -patchwork <br/>
   -metap <br/>
  
-  Please install the packages in this way.<br/>
+ Please install the packages in this way.<br/>
  
  ```
  install.package("devtools")
