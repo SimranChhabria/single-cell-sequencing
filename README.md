@@ -16,15 +16,15 @@ https://github.com/ZJUFanLab/scCATCH <br/>
 This section of the code helps to display all the markers associated in each cluster and plotting them for noting the differential gene expression.<br/>
 
 
-##Environment set-up 
+## Environment set-up 
 
 ### Packages for R:
 
-**Note 1:  Install the packages in the order listed below.** <br/>
+     **Note 1:  Install the packages in the order listed below.** <br/>
 
-**Note 2:  When installing the following packages, if you are asked to select (a/s/n) or (y/n), please select “a” or "y" as applicable.** <br/>
+     **Note 2:  When installing the following packages, if you are asked to select (a/s/n) or (y/n), please select “a” or "y" as applicable.** <br/>
 
-**Note 3: All the package names listed below are case sensitive!** <br/>
+     **Note 3: All the package names listed below are case sensitive!** <br/>
 
 1. Install all the packages listed below from CRAN using **install.packages()** function. <br/>
   
@@ -35,7 +35,7 @@ This section of the code helps to display all the markers associated in each clu
   -patchwork <br/>
   -metap <br/>
  
-  Please install the packages in this way.\
+  Please install the packages in this way.<br/>
  
  ```
  install.package("devtools")
@@ -43,13 +43,13 @@ This section of the code helps to display all the markers associated in each clu
  and so on 
  ```
   
-2. Install the scCATCH package from Bioconductor using the the BiocManager::install() function.\
+2. Install the scCATCH package from Bioconductor using the the BiocManager::install() function.
 
    ```
    BiocManager::install("scCATCH")
    ```
    
-3. Finally, please check that all the packages were installed successfully by loading them one at a time using the library() function.\
+3. Finally, please check that all the packages were installed successfully by loading them one at a time using the library() function.
 
    ``` 
    library(Seurat)
