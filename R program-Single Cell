@@ -1,0 +1,116 @@
+library(dplyr)
+library(devtools)
+library(Seurat)
+library(patchwork)
+library(ggplot2)
+library(cowplot)
+library(metap)
+
+#Reading the data objects
+KO.data <- Read10X(data.dir = "filtered_feature_bc_matrix_KO")
+WT.data <-  Read10X(data.dir = "filtered_feature_bc_matrix_WT")
+
+#Creation of Seurat Object for Knock out gene
+KO <- CreateSeuratObject(counts = KO.data, project = "KO_Mouse", min.cells = 5)
+KO$stim <- "KO_Mouse"
+
+#Creation of Vinplots for subset/filtering
+KO[["percent.mt"]] <- PercentageFeatureSet(KO, pattern = "^Mt")
+VlnPlot(KO, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+plot1 <- FeatureScatter(KO, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(KO, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+view (plot1 + plot2) 
+KO <- subset(KO, subset= nFeature_RNA > 200 & nFeature_RNA < 6000 & nCount_RNA < 45000 & percent.mt < 0.5) 
+KO <- NormalizeData(KO, verbose = FALSE)
+KO <- FindVariableFeatures(KO, selection.method = "vst", nfeatures = 2000)
+
+#Creation of Seurat Object for Wildtype gene
+WT <- CreateSeuratObject(counts = WT.data, project = "WT_Mouse", min.cells = 5)
+WT$stim <- "WT_Mouse"
+
+#Creation of Vinplots for subset/filtering
+WT[["percent.mt"]] <- PercentageFeatureSet(WT, pattern = "^Mt")
+VlnPlot(WT, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+plot1 <- FeatureScatter(WT, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(WT, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 
+WT <- subset(WT, subset = nFeature_RNA > 200 & nFeature_RNA < 6000 & nCount_RNA < 45000 & percent.mt < 0.5)
+WT <- NormalizeData(WT, verbose = FALSE)
+WT <- FindVariableFeatures(WT, selection.method = "vst", nfeatures = 2000)
+
+
+#Finding anchors and integration of the objects
+mouse.anchors <- FindIntegrationAnchors(object.list = list(KO, WT), dims = 1:20)
+mouse.combined <- IntegrateData(anchorset = mouse.anchors, dims = 1:20)
+
+rm(WO.data)
+rm(KO.data)
+
+DefaultAssay(mouse.combined) <- "integrated"
+
+# Run the standard workflow for visualization and clustering
+mouse.combined <- ScaleData(mouse.combined, verbose = FALSE)
+mouse.combined <- RunPCA(mouse.combined, npcs = 30, verbose = FALSE)
+mouse.combined <- RunUMAP(mouse.combined, reduction = "pca", dims = 1:20)
+mouse.combined <- FindNeighbors(mouse.combined, reduction = "pca", dims = 1:20)
+mouse.combined <- FindClusters(mouse.combined, resolution = 0.3)
+
+#Visualization
+p1 <- DimPlot(mouse.combined, reduction = "umap", split.by = "stim")
+p2 <- DimPlot(mouse.combined, reduction = "umap", split.by = "stim" , label = TRUE)
+plot_grid(p2)
+
+#Annotation using scCATCH
+library(scCATCH)
+
+#Annotation
+clu_markers <- findmarkergenes(object = mouse.combined,
+                               species = 'Mouse',
+                               cluster = 'All',
+                               match_CellMatch = TRUE,
+                               cancer = NULL,
+                               tissue = c('Mammary gland', 'Mammary epithelium', 'Blood', 'Lymph node', 'Lymphoid tissue'),
+                               cell_min_pct = 0.25,
+                               logfc = 0.25,
+                               pvalue = 0.05) 
+
+clu_mouse_ann <- scCATCH (object = clu_markers$clu_markers, species = 'Mouse', cancer = NULL, tissue = c('Mammary gland', 'Mammary epithelium', 'Blood', 'Lymph node', 'Lymphoid tissue'))
+
+
+#Clusters based on clu_ann table
+mouse.plot <- RenameIdents(mouse.combined,`0` = "LuminalProgenitorCell", `1` = "Myoepithelial", `3` = "EndothelialCell", `6` = "	ProgenitorCell", `7` = "Macrophage", `8` = "StromalCell", `9` = "	ProgenitorCell", `11` = "	StemCell", `13` = "BCell"
+                             ,`15`= "CD8+ TCell", `17` = "LuminalProgenitorCell")
+                             
+Umap_plot <- DimPlot(mouse.plot, reduction = "umap", label = TRUE)
+plot(Umap_plot)
+
+#Plotting a HeatMAP:
+genes_to_plot <- clu_markers$clu_markers%>% group_by(cluster) %>% top_n(5, avg_logfc)
+genes_to_plot <- genes_to_plot$gene
+
+DefaultAssay(mouse.combined) <- "Integrated"
+mouse.combined2 <- SubsetData(mouse.combined ,max.cells.per.ident = 50)
+DoHeatmap(object = mouse.combined2, genes_to_plot, size = 5) + scale_fill_gradientn(colors = colorRampPalette(c("#0200ad", 
+                                                                                                                "#fbfcbd", 
+                                                                                                                "#ff0000"))(256)) 
+#Finding all the Markers
+DefaultAssay(mouse.combined) <- "RNA"
+
+markers <- FindAllMarkers(object = mouse.combined, 
+                          logfc.threshold = 0.25)  
+saveRDS(markers, 'markers')
+
+
+#Finding the individual cluster markers:
+cluster0.markers <- FindMarkers(mouse.combined, ident.1 = 0, min.pct = 0.25)
+head(cluster0.markers, n = 5)
+plot0 <- FeaturePlot(mouse.combined, features = c(""), min.cutoff = 0 ,max.cutoff=3, split.by = "stim")
+plot0
+
+
+cluster1.markers <- FindMarkers(mouse.combined, ident.1 = 1, min.pct = 0.25)
+head(cluster1.markers, n = 5)
+plot1 <- FeaturePlot(mouse.combined, features = c(""), min.cutoff = 0 ,max.cutoff=3, split.by = "stim")
+plot1
+                            
+                           
